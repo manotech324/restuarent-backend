@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\Validation\Register;
+use App\Http\Requests\Validation;
 
 class AuthController extends Controller
 {
@@ -31,16 +31,25 @@ class AuthController extends Controller
     }
 
     // LOGIN USER
-    public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
+   public function login(Request $request)
+{
+    $credentials = $request->only('email', 'password');
 
-        if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['message' => 'Invalid email or password'], 401);
-        }
-
-        return $this->respondWithToken($token);
+    if (!$token = auth()->attempt($credentials)) {
+        return response()->json(['message' => 'Invalid email or password'], 401);
     }
+
+    // Get logged-in user
+    $user = auth()->user();
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type'   => 'bearer',
+        'expires_in'   => auth()->factory()->getTTL() * 60,
+        'user'         => $user
+    ]);
+}
+
 
     // CURRENT LOGGED-IN USER
     public function me()

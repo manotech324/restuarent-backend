@@ -18,9 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->alias('kitchen', \App\Http\Middleware\Permission\Kitchen::class);
     $middleware->alias('branch_supervisor', \App\Http\Middleware\Permission\BranchSupervisor::class);
     $middleware->alias('waiter', \App\Http\Middleware\Permission\Waiter::class);
-
-    
-
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
