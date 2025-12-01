@@ -18,7 +18,7 @@ class SuperAdmin
     {
         $user = Auth::user(); 
 
-        if (!$user || $user->role !== 'super_admin') {
+        if (!$user || $user->role !== 'super_admin' ) {
             return response()->json([
                 'message' => 'Unauthorized. Only Super Admin can perform this action.'
             ], 403);

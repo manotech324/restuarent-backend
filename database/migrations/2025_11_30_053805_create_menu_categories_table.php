@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('branches', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->string('location')->nullable();
-        $table->string('phone')->nullable();
-        $table->timestamps();
-    });
+        Schema::create('menu_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->unsignedBigInteger('branch_id')->nullable()->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('branches');
+        Schema::dropIfExists('menu_categories');
     }
 };
