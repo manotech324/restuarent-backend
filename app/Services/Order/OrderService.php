@@ -15,6 +15,9 @@ class OrderService {
     /**
      * Create a new order
      */
+    /**
+     * Create a new order
+     */
    public function createOrder(int $userId, array $items, ?int $tableId = null)
     {
         return DB::transaction(function () use ($userId, $items, $tableId) {
@@ -37,43 +40,7 @@ class OrderService {
                 'total_price' => 0
             ]);
 
-            $totalPrice = 0;
-
-            // 2️⃣ Create Order Items
-            foreach ($items as $item) {
-
-                // 🔥 FETCH VARIANT PRICE
-                $variant = MenuItemVariant::findOrFail($item['variant_id']);
-
-                $itemPrice = $variant->price * $item['quantity'];
-
-                $orderItem = $order->items()->create([
-                    'menu_item_id' => $item['menu_item_id'],
-                    'variant_id'   => $variant->id,
-                    'quantity'     => $item['quantity'],
-                    'price'        => $variant->price, // ✅ NEVER NULL
-                ]);
-
-                // 3️⃣ Add Addons (optional)
-                if (!empty($item['addons'])) {
-                    foreach ($item['addons'] as $addonData) {
-                        $addon = MenuItemAddon::findOrFail($addonData['addon_id']);
-
-                        $addonTotal = $addon->price * $addonData['quantity'];
-
-                        $orderItem->addons()->create([
-                            'menu_item_addon_id' => $addon->id, // Correct column
-                            'quantity' => $addonData['quantity'],
-                            'price'    => $addon->price,
-                            // 'menu_item_id' => ... removed, not needed in this table
-                        ]);
-
-                        $itemPrice += $addonTotal;
-                    }
-                }
-
-                $totalPrice += $itemPrice;
-            }
+            $totalPrice = $this->createOrderItems($order, $items);
 
             // 4️⃣ Update Order Total
             $order->update([
@@ -104,20 +71,76 @@ class OrderService {
 
         $order->save();
 
-        // Optional: update items if provided
+        // Optional: update items if provided (REPLACE mode)
         if (!empty($data['items'])) {
             $order->items()->delete();
-            foreach ($data['items'] as $item) {
-                $menuItem = MenuItem::findOrFail($item['menu_item_id']);
-                $order->items()->create([
-                    'menu_item_id' => $menuItem->id,
-                    'quantity' => $item['quantity'],
-                    'price' => $menuItem->price
-                ]);
-            }
+            $totalPrice = $this->createOrderItems($order, $data['items']);
+             $order->update([
+                'total_price' => $totalPrice
+            ]);
         }
 
         return $order->load('items', 'table');
+    }
+
+    /**
+     * Add items to an existing order (APPEND mode)
+     */
+    public function addItemsToOrder(Order $order, array $items): Order
+    {
+        return DB::transaction(function () use ($order, $items) {
+             $newItemsPrice = $this->createOrderItems($order, $items);
+
+             // Update total price
+             $order->total_price += $newItemsPrice;
+             $order->save();
+
+             return $order->load(['items.addons', 'table']);
+        });
+    }
+
+    /**
+     * Helper to create order items and return their total price
+     */
+    protected function createOrderItems(Order $order, array $items): float
+    {
+        $totalPrice = 0;
+
+        foreach ($items as $item) {
+
+            // 🔥 FETCH VARIANT PRICE
+            $variant = MenuItemVariant::findOrFail($item['variant_id']);
+
+            $itemPrice = $variant->price * $item['quantity'];
+
+            $orderItem = $order->items()->create([
+                'menu_item_id' => $item['menu_item_id'],
+                'variant_id'   => $variant->id,
+                'quantity'     => $item['quantity'],
+                'price'        => $variant->price, // ✅ NEVER NULL
+            ]);
+
+            // 3️⃣ Add Addons (optional)
+            if (!empty($item['addons'])) {
+                foreach ($item['addons'] as $addonData) {
+                    $addon = MenuItemAddon::findOrFail($addonData['addon_id']);
+
+                    $addonTotal = $addon->price * $addonData['quantity'];
+
+                    $orderItem->addons()->create([
+                        'menu_item_addon_id' => $addon->id, // Correct column
+                        'quantity' => $addonData['quantity'],
+                        'price'    => $addon->price,
+                    ]);
+
+                    $itemPrice += $addonTotal;
+                }
+            }
+
+            $totalPrice += $itemPrice;
+        }
+
+        return $totalPrice;
     }
 
 }

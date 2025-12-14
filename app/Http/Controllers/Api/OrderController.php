@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\StoreOrderRequest;
+use App\Http\Requests\Order\AddItemsRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order\Order;
 use App\Services\Order\OrderService;
@@ -104,6 +105,19 @@ class OrderController extends Controller
             'success' => true,
             'message' => "Order status updated to $status",
             'order' => $order->load(['items', 'table'])
+        ]);
+    }
+    /**
+     * Add items to an existing order
+     */
+    public function addItems(AddItemsRequest $request, Order $order): JsonResponse
+    {
+        $updatedOrder = $this->orderService->addItemsToOrder($order, $request->items);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Items added to order successfully',
+            'order' => $updatedOrder
         ]);
     }
 }

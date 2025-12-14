@@ -30,6 +30,7 @@ Route::middleware(['auth:api','checkRole:superadmin,branch_supervisor'])->group(
     Route::apiResource('menu-category', CategoryController::class);
 });
 Route::apiResource('orders', OrderController::class);
+Route::post('orders/{order}/items', [OrderController::class, 'addItems']); // Add items to order
 Route::patch('orders/{order}/status/{status}', [OrderController::class, 'updateStatus']);
 
 Route::apiResource('tables', TableController::class);
