@@ -5,8 +5,17 @@ use App\Models\Admin\Branch;
 use Illuminate\Database\Eloquent\Model;
 
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class MenuItem extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\MenuItemFactory::new();
+    }
+
     //
     protected $fillable = [
         'category_id',

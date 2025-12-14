@@ -4,8 +4,17 @@ namespace App\Models\Auth_SuperVisor;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class MenuItemAddon extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\MenuItemAddonFactory::new();
+    }
+
     //
     protected $fillable = [
         'category_id',

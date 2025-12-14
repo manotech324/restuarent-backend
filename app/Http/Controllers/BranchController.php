@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Admin\BranchService;
-use App\Http\Requests\Admin\BrachRequest;
+use App\Http\Requests\Admin\BranchRequest;
 
 class BranchController extends Controller
 {
@@ -19,7 +19,7 @@ class BranchController extends Controller
         return response()->json($this->service->list());
     }
 
-    public function store(BrachRequest $request)
+    public function store(BranchRequest $request)
     {
         $branch = $this->service->create($request->validated());
 
@@ -41,7 +41,7 @@ class BranchController extends Controller
         return response()->json($branch);
     }
 
-    public function update(BrachRequest $request, $id)
+    public function update(BranchRequest $request, $id)
     {
         $branch = $this->service->find($id);
 
