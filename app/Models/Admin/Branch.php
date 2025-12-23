@@ -5,6 +5,7 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Setting;
 
 class Branch extends Model
 {
@@ -17,5 +18,10 @@ class Branch extends Model
 
     //
         protected $fillable = ['name', 'location', 'phone'];
+
+         public function settings()
+    {
+        return $this->hasMany(Setting::class);
+    }
 
 }

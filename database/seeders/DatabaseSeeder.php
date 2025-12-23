@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             TableSeeder::class, // Warning: Tables might not differ per branch if schema lacks branch_id
             MenuSeeder::class,
+            SettingsSeeder::class,
         ]);
     }
 }
