@@ -22,12 +22,11 @@ Route::middleware('auth:api')->group(function () {
 
 
 Route::middleware(['auth:api', 'superadmin'])->group(function () {
-    Route::apiResource('45', BranchController::class);
+    Route::apiResource('branches', BranchController::class);
 });
 Route::middleware(['auth:api','checkRole:superadmin,branch_supervisor'])->group(function () {
-});
     Route::apiResource('menu-items', MenuController::class);
-
+});
 Route::middleware(['auth:api','checkRole:superadmin,branch_supervisor'])->group(function () {
     Route::apiResource('menu-category', CategoryController::class);
 });
