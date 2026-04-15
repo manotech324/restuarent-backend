@@ -81,4 +81,34 @@ class AuthController extends Controller
             'user'         => auth()->user()
         ]);
     }
+
+    // PROFILE UPDATE
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'name'  => 'sometimes|string|max:255',
+            'phone' => 'sometimes|string|max:20',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($user->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->image)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->image);
+            }
+
+            $path = $request->file('image')->store('profiles', 'public');
+            $validated['image'] = $path;
+        }
+
+        $user->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'data'    => $user
+        ]);
+    }
 }

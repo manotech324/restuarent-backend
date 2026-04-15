@@ -39,9 +39,12 @@ Route::apiResource('tables', TableController::class);
 
 Route::get('/settings', [SettingsController::class, 'index']); // Mobile App
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
     Route::post('/settings', [SettingsController::class, 'store']);
     Route::get('/settings/{id}', [SettingsController::class, 'show']);
     Route::put('/settings/{id}', [SettingsController::class, 'update']);
     Route::delete('/settings/{id}', [SettingsController::class, 'destroy']);
+    
+    // Profile Update Route
+    Route::post('/settings/profile', [AuthController::class, 'updateProfile']);
 });
